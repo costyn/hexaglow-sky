@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HexaGlow Ceiling</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+      canvas { display: block; width: 100vw; height: 100vh; }
+      body.idle { cursor: none; }
+      #hud {
+        position: fixed; left: 16px; bottom: 14px; font: 13px/1.4 ui-monospace, Menlo, monospace;
+        color: #9ab; opacity: 0; transition: opacity .6s; pointer-events: none; white-space: pre;
+        text-shadow: 0 0 4px #000;
+      }
+      #hud.show { opacity: .85; }
+      #help {
+        position: fixed; inset: 0; display: none; place-items: center; background: #000c;
+        font: 14px/1.6 ui-monospace, Menlo, monospace; color: #cde;
+      }
+      #help.show { display: grid; }
+      #help pre { margin: 0; padding: 24px 32px; border: 1px solid #345; border-radius: 8px; background: #050a12; }
+      #help b { color: #6af; font-weight: normal; }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <div id="hud"></div>
+    <div id="help"><pre>
+<b>HexaGlow Ceiling</b> — keys
+
+Space / →     next scene        ←     previous scene
+1 – 6         pick scene        A     auto-cycle on/off
+P / ]         next palette      [     previous palette
+↑ / ↓         speed ±           + / − brightness ±
+B             blackout (fade)   F     fullscreen
+X / Y         mirror horizontal / vertical (ceiling mount)
+L             bloom on/off      W     set WLED IP (palette sync)
+H / ?         this help
+</pre></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
