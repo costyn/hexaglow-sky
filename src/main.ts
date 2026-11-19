@@ -9,6 +9,8 @@ import sacredTunnel from './shaders/sacredTunnel.glsl?raw';
 import triangleDrift from './shaders/triangleDrift.glsl?raw';
 import kaleidoLattice from './shaders/kaleidoLattice.glsl?raw';
 import hexagramMandala from './shaders/hexagramMandala.glsl?raw';
+import calibration from './shaders/calibration.glsl?raw';
+import { DEFAULT_QUAD, KeystoneEditor, warpMatrix, type Quad } from './keystone';
 
 const SCENES = [
   { name: 'Lattice Bloom', src: latticeBloom },
@@ -23,6 +25,7 @@ const SCENES = [
 const DEFAULTS = {
   speed: 1, bright: 1, bloom: true, flipX: false, flipY: false, auto: true,
   sceneSecs: 50, sceneFade: 7, paletteSecs: 90, paletteFade: 8, wled: '', renderScale: 1,
+  quad: DEFAULT_QUAD.map((p) => [...p]) as Quad, zoom: 1,
 };
 type Settings = typeof DEFAULTS;
 const settings: Settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem('ceiling-settings') || '{}') };
@@ -39,16 +42,25 @@ if (!gl) throw new Error('WebGL2 not available');
 const hdr = !!gl.getExtension('EXT_color_buffer_float');
 gl.getExtension('OES_texture_float_linear');
 
-const sceneProgs = SCENES.map((s) => new Program(gl,
-  `#version 300 es
+// Every scene is evaluated in "ceiling space": projector pixel -> keystone homography -> p.
+const sceneFS = (src: string) => `#version 300 es
 precision highp float;
 out vec4 outColor;
+uniform mat3 uWarp;
+uniform vec2 uFlip;
+uniform float uZoom;
 ${common}
-${s.src}
+${src}
 void main() {
-  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
-  outColor = vec4(max(scene(p, uTime), 0.0), 1.0);
-}`, s.name));
+  vec3 h = uWarp * vec3(gl_FragCoord.xy / uRes, 1.0);
+  if (h.z <= 1e-5) { outColor = vec4(0.0, 0.0, 0.0, 1.0); return; } // beyond the horizon
+  vec2 p = h.xy / h.z;
+  p = mix(p, -p, uFlip) * uZoom;
+  vec3 col = scene(p, uTime) * (1.0 - smoothstep(4.0, 8.0, length(p)));
+  outColor = vec4(max(col, 0.0), 1.0);
+}`;
+const sceneProgs = SCENES.map((s) => new Program(gl, sceneFS(s.src), s.name));
+const calibProg = new Program(gl, sceneFS(calibration), 'calibration');
 const downMix = new Program(gl, DOWNSAMPLE_MIX_FS, 'downsample-mix');
 const down = new Program(gl, DOWNSAMPLE_FS, 'downsample');
 const blur = new Program(gl, BLUR_FS, 'blur');
@@ -165,7 +177,7 @@ function show(msg: string) {
   hud.textContent = msg;
   hud.classList.add('show');
   clearTimeout(hudTimer);
-  hudTimer = window.setTimeout(() => hud.classList.remove('show'), 3500);
+  hudTimer = window.setTimeout(() => { if (!keystone.active) hud.classList.remove('show'); }, 3500);
 }
 let idleTimer = 0;
 window.addEventListener('mousemove', () => {
@@ -176,8 +188,29 @@ window.addEventListener('mousemove', () => {
 
 // ---------- controls ----------
 let blackout = false, master = 1;
+const keystone = new KeystoneEditor(settings.quad, save);
+const KEYSTONE_HELP = 'KEYSTONE  drag the 4 corners until squares look square & the circle round on the ceiling\n'
+  + 'Tab: next corner · arrows: nudge (Shift = more) · +/−: pattern size · R: reset · K/Esc/Enter: done';
+function keystoneKeys(e: KeyboardEvent): boolean {
+  const k = e.key, step = e.shiftKey ? 0.01 : 0.002;
+  if (k === 'k' || k === 'Escape' || k === 'Enter') { keystone.toggle(false); show('keystone saved'); }
+  else if (k === 'Tab') { e.preventDefault(); keystone.selected = (keystone.selected + 1) % 4; keystone.render(); }
+  else if (k === 'ArrowLeft') keystone.nudge(-step, 0);
+  else if (k === 'ArrowRight') keystone.nudge(step, 0);
+  else if (k === 'ArrowUp') keystone.nudge(0, step);
+  else if (k === 'ArrowDown') keystone.nudge(0, -step);
+  else if (k === '+' || k === '=') settings.zoom = Math.max(0.3, settings.zoom / 1.05);
+  else if (k === '-' || k === '_') settings.zoom = Math.min(3, settings.zoom * 1.05);
+  else if (k === 'r') { settings.quad = DEFAULT_QUAD.map((p) => [...p]) as Quad; settings.zoom = 1; keystone.setQuad(settings.quad); }
+  else return false;
+  e.preventDefault();
+  if (keystone.active) show(KEYSTONE_HELP);
+  return true;
+}
 window.addEventListener('keydown', (e) => {
   const k = e.key;
+  if (keystone.active) { if (keystoneKeys(e)) save(); return; }
+  if (k === 'k') { help.classList.remove('show'); keystone.toggle(true); show(KEYSTONE_HELP); return; }
   if (k === ' ' || k === 'ArrowRight') goScene((next >= 0 ? next : cur) + 1);
   else if (k === 'ArrowLeft') goScene((next >= 0 ? next : cur) - 1);
   else if (k >= '1' && k <= String(SCENES.length)) goScene(+k - 1);
@@ -210,7 +243,11 @@ let last = performance.now();
 function drawScene(i: number, seed: number, target: Target) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
   gl.viewport(0, 0, target.w, target.h);
-  sceneProgs[i].use().f('uTime', time).f('uRes', target.w, target.h).f('uSeed', seed).tex('uPalette', 0, paletteTex);
+  const prog = i < 0 ? calibProg : sceneProgs[i];
+  prog.use().f('uTime', time).f('uRes', target.w, target.h).f('uSeed', seed).tex('uPalette', 0, paletteTex)
+    .m3('uWarp', warpMatrix(settings.quad, W / H)).f('uZoom', i < 0 ? 1 : settings.zoom)
+    .f('uFlip', settings.flipX ? 1 : 0, settings.flipY ? 1 : 0);
+  if (i < 0) prog.f('uAspect', W / H);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 function pass(p: Program, out: Target | null, w: number, h: number) {
@@ -246,8 +283,9 @@ function frame(now: number) {
   master += ((blackout ? 0 : 1) - master) * Math.min(1, dt * 1.5);
 
   const mix = next >= 0 ? mixT * mixT * (3 - 2 * mixT) : 0;
-  drawScene(cur, curSeed, sceneA);
-  if (next >= 0) drawScene(next, nextSeed, sceneB);
+  if (keystone.active) drawScene(-1, 0, sceneA);
+  else drawScene(cur, curSeed, sceneA);
+  if (next >= 0 && !keystone.active) drawScene(next, nextSeed, sceneB);
 
   if (settings.bloom) {
     downMix.use().tex('uA', 0, sceneA.tex).tex('uB', 1, sceneB.tex).f('uMix', mix).f('uTexel', 1 / W, 1 / H);
@@ -263,7 +301,7 @@ function frame(now: number) {
   composite.use()
     .tex('uA', 0, sceneA.tex).tex('uB', 1, sceneB.tex).tex('uBloom1', 2, b1.tex).tex('uBloom2', 3, b2.tex)
     .f('uMix', mix).f('uBloom', settings.bloom ? 0.9 : 0).f('uBright', settings.bright).f('uMaster', master)
-    .f('uEdge', 0.03).f('uFlip', settings.flipX ? 1 : 0, settings.flipY ? 1 : 0);
+    .f('uEdge', 0.03);
   pass(composite, null, W, H);
 
   requestAnimationFrame(frame);

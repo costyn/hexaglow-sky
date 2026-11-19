@@ -27,6 +27,10 @@ export class Program {
     else if (v.length === 3) this.gl.uniform3f(l, v[0], v[1], v[2]);
     return this;
   }
+  m3(name: string, m: Float32Array) {
+    this.gl.uniformMatrix3fv(this.loc(name), false, m);
+    return this;
+  }
   tex(name: string, unit: number, t: WebGLTexture) {
     const gl = this.gl;
     gl.activeTexture(gl.TEXTURE0 + unit);

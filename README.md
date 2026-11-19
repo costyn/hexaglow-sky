@@ -24,6 +24,7 @@ full-screen on the projector output (press **F**).
 | ↑ / ↓ | speed |
 | + / − | brightness |
 | B | blackout (fades) |
+| K | keystone calibration (see below) |
 | X / Y | mirror horizontally / vertically (ceiling/rear projection) |
 | L | bloom glow on/off |
 | W | WLED IP for palette sync |
@@ -31,6 +32,17 @@ full-screen on the projector output (press **F**).
 
 Settings persist in the browser. URL params: `?wled=192.168.1.50&scene=2&speed=0.8&scale=0.75`
 (`scale` lowers render resolution on weak machines).
+
+## Keystone (angled projector)
+
+Press **K**. A test grid with a circle and hexagon appears, plus four corner handles. Drag
+the handles (or Tab + arrow keys, Shift for bigger steps) until the squares look square and
+the circle looks round *on the ceiling*. `+`/`−` change the pattern size, **R** resets,
+**K**/Esc saves.
+
+Unlike projector keystone, this doesn't shrink the picture: every projector pixel is mapped
+into ceiling space and the pattern is drawn there, so the whole frame stays lit and only
+the outer outline of the image stays trapezoid-shaped.
 
 ## Scenes
 

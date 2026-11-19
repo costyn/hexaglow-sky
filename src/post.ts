@@ -46,11 +46,10 @@ void main() {
 export const COMPOSITE_FS = HEAD + `
 uniform sampler2D uA, uB, uBloom1, uBloom2;
 uniform float uMix, uBloom, uBright, uMaster, uEdge;
-uniform vec2 uFlip;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 void main() {
   vec2 uv = gl_FragCoord.xy / uOutRes;
-  vec2 suv = mix(uv, 1.0 - uv, uFlip);
+  vec2 suv = uv;
   vec3 c = texture(uA, suv).rgb;
   if (uMix > 0.0) c = mix(c, texture(uB, suv).rgb, uMix);
   c += (texture(uBloom1, suv).rgb * 0.8 + texture(uBloom2, suv).rgb * 1.1) * uBloom;
