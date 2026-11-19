@@ -206,7 +206,7 @@ function keystoneKeys(e: KeyboardEvent): boolean {
   else if (k === 'r') { settings.quad = DEFAULT_QUAD.map((p) => [...p]) as Quad; settings.zoom = 1; keystone.setQuad(settings.quad); }
   else return false;
   e.preventDefault();
-  if (keystone.active) show(KEYSTONE_HELP);
+  if (keystone.active) show(`${KEYSTONE_HELP}\npattern size ×${(1 / settings.zoom).toFixed(2)}`);
   return true;
 }
 window.addEventListener('keydown', (e) => {
@@ -247,7 +247,7 @@ function drawScene(i: number, seed: number, target: Target) {
   gl.viewport(0, 0, target.w, target.h);
   const prog = i < 0 ? calibProg : sceneProgs[i];
   prog.use().f('uTime', time).f('uRes', target.w, target.h).f('uSeed', seed).tex('uPalette', 0, paletteTex)
-    .m3('uWarp', warpMatrix(settings.quad, W / H)).f('uZoom', i < 0 ? 1 : settings.zoom)
+    .m3('uWarp', warpMatrix(settings.quad, W / H)).f('uZoom', settings.zoom)
     .f('uFlip', settings.flipX ? 1 : 0, settings.flipY ? 1 : 0);
   if (i < 0) prog.f('uAspect', W / H);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
