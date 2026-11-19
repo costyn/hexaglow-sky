@@ -80,3 +80,8 @@ the segment's colors. Note WLED allows only a few WebSocket clients at once.
   which includes palettes from [FastLED](https://github.com/FastLED/FastLED) (MIT) and
   [cpt-city](http://seaviewsensing.com/pub/cpt-city/).
 - Signed-distance functions for triangles and hexagons after [Inigo Quilez](https://iquilezles.org/articles/distfunctions2d/).
+
+## License
+
+MIT — see [LICENSE](LICENSE). The bundled copy of WLED's palette source
+(`scripts/wled-palettes.cpp`) remains under WLED's EUPL-1.2 license.
