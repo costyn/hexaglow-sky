@@ -1,17 +1,26 @@
-# HexaGlow Ceiling Projection
+# Hexaglow Sky
 
-Slow, psy-trance-style geometric visuals for the ceiling above the DJ booth, using the
-same color palettes as the WLED LED wall. Pure WebGL2 shaders, runs in any modern browser.
+Slow, psy-trance-style geometric visuals to project on the ceiling above a hexagon-lattice
+LED wall, using the same color palettes as WLED. Pure WebGL2 shaders, runs in any modern
+browser — with live palette sync from your WLED controller.
 
-## Run
+## Quick start (no install)
+
+Download `hexaglow-sky.html` from the [latest release](https://github.com/costyn/hexaglow-sky/releases/latest),
+open it in Chrome, drag the window to the projector and press **F** for fullscreen.
+Press **K** to correct for an angled projector, **W** to sync palettes with WLED, **H** for all keys.
+
+A laptop or desktop from the last ~6–8 years is plenty. A Raspberry Pi 3 is not (no WebGL2).
+
+## Run from source
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173 (also reachable from other machines on the LAN)
 ```
 
-For a gig: `npm run build` and serve `dist/` (or just keep `npm run dev` running), open it
-full-screen on the projector output (press **F**).
+`npm run build:single` produces one self-contained `dist/index.html` that runs straight from
+disk (double-click), which is what the releases contain.
 
 ## Keys
 
@@ -64,3 +73,10 @@ the segment's colors. Note WLED allows only a few WebSocket clients at once.
 
 `src/wledPalettes.ts` is generated from WLED's `wled00/palettes.cpp` (v0.16, copy in
 `scripts/`). To refresh: replace `scripts/wled-palettes.cpp` and run `npm run palettes`.
+
+## Credits
+
+- Color palettes from [WLED](https://github.com/wled/WLED) (`wled00/palettes.cpp`, EUPL-1.2),
+  which includes palettes from [FastLED](https://github.com/FastLED/FastLED) (MIT) and
+  [cpt-city](http://seaviewsensing.com/pub/cpt-city/).
+- Signed-distance functions for triangles and hexagons after [Inigo Quilez](https://iquilezles.org/articles/distfunctions2d/).
