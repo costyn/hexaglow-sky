@@ -265,29 +265,30 @@ function frame(now: number) {
   time += dt * settings.speed;
   resize();
 
-  // director
-  sceneT += dt;
+  // director (paused while calibrating, so nothing fades over the keystone grid)
+  const calib = keystone.active;
+  if (!calib) sceneT += dt;
   if (settings.auto && next < 0 && sceneT > settings.sceneSecs) {
     let n: number;
     do n = Math.floor(Math.random() * SCENES.length); while (n === cur);
     goScene(n);
   }
-  if (next >= 0) {
+  if (next >= 0 && !calib) {
     mixT += dt / settings.sceneFade;
     if (mixT >= 1) { cur = next; curSeed = nextSeed; next = -1; mixT = 0; }
   }
-  palClock += dt;
-  if (settings.auto && !wledActive() && palClock > settings.paletteSecs) {
+  if (!calib) palClock += dt;
+  if (settings.auto && !calib && !wledActive() && palClock > settings.paletteSecs) {
     palClock = 0;
     setPalette(randomPalette(), settings.paletteFade);
   }
   updatePalette(dt);
   master += ((blackout ? 0 : 1) - master) * Math.min(1, dt * 1.5);
 
-  const mix = next >= 0 ? mixT * mixT * (3 - 2 * mixT) : 0;
-  if (keystone.active) drawScene(-1, 0, sceneA);
+  const mix = next >= 0 && !calib ? mixT * mixT * (3 - 2 * mixT) : 0;
+  if (calib) drawScene(-1, 0, sceneA);
   else drawScene(cur, curSeed, sceneA);
-  if (next >= 0 && !keystone.active) drawScene(next, nextSeed, sceneB);
+  if (next >= 0 && !calib) drawScene(next, nextSeed, sceneB);
 
   if (settings.bloom) {
     downMix.use().tex('uA', 0, sceneA.tex).tex('uB', 1, sceneB.tex).f('uMix', mix).f('uTexel', 1 / W, 1 / H);
