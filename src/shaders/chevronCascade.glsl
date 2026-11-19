@@ -30,7 +30,8 @@ vec3 scene(vec2 p, float t) {
     float life = smoothstep(-0.2, 0.8, ph);
     float lw = layer == 2 ? 0.0028 : 0.0042;
     vec3 c = pal(row * 0.045 + fl * 0.33 + u * 0.4 - t * 0.012);
-    col += c * exists * life * (stroke(d, lw) + halo(d, lw)) * (layer == 2 ? 0.8 : 1.0);
+    float edge = smoothstep(0.5, 0.3, abs(wl)) * smoothstep(0.0, 0.06, min(uf, 1.0 - uf));
+    col += c * exists * life * (stroke(d, lw) + halo(d, lw) * edge) * (layer == 2 ? 0.8 : 1.0);
   }
   // keep the very edges calmer, centre axis brightest
   col *= 0.7 + 0.3 * smoothstep(0.9, 0.0, u);

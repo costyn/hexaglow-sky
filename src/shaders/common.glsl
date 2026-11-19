@@ -40,13 +40,20 @@ float sdHex(vec2 p, float r) {
   return length(p) * sign(p.y);
 }
 
+// Pixel size in scene units, set by main() from the continuous coordinate p.
+// (Using fwidth(d) instead breaks at grid-cell borders where d jumps, which drew
+// faint flickering lines along cell edges.) Scenes that measure distances in a
+// scaled space (q = p * scale) set gUnit = scale.
+float PX = 0.001;
+float gUnit = 1.0;
+
 // Anti-aliased stroke of width w around the zero-line of d
 float stroke(float d, float w) {
-  float px = max(fwidth(d), 1e-5);
+  float px = PX * gUnit;
   return 1.0 - smoothstep(w - px, w + px, abs(d));
 }
 float fillAA(float d) {
-  float px = max(fwidth(d), 1e-5);
+  float px = PX * gUnit;
   return 1.0 - smoothstep(-px, px, d);
 }
 // soft halo, adds the "neon tube" feel on top of the bloom pass

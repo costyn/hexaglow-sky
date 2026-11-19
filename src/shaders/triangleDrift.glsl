@@ -23,7 +23,10 @@ vec3 scene(vec2 p, float t) {
     float d = sdTri(lp, sz) * cs;
     float lw = 0.0026 + 0.0008 * fl;
     vec3 c = pal(h * 0.25 + fl * 0.18 + length(p) * 0.3 - t * 0.01);
-    col += c * exists * life * (stroke(d, lw) + halo(d, lw) + 0.08 * fillAA(d));
+    // fade the glow before the cell border so neighbouring cells don't show a seam
+    vec2 ef = 0.5 - abs(f);
+    float edge = smoothstep(0.0, 0.12, min(ef.x, ef.y));
+    col += c * exists * life * (stroke(d, lw) + halo(d, lw) * edge + 0.08 * fillAA(d));
   }
   // central hexagon cluster
   float scale = 10.0;

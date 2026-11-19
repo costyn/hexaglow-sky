@@ -56,6 +56,8 @@ void main() {
   if (h.z <= 1e-5) { outColor = vec4(0.0, 0.0, 0.0, 1.0); return; } // beyond the horizon
   vec2 p = h.xy / h.z;
   p = mix(p, -p, uFlip) * uZoom;
+  vec2 fw = fwidth(p);
+  PX = max(0.70710678 * length(fw), 1e-6);
   vec3 col = scene(p, uTime) * (1.0 - smoothstep(4.0, 8.0, length(p)));
   outColor = vec4(max(col, 0.0), 1.0);
 }`;

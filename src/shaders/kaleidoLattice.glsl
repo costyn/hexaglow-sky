@@ -12,6 +12,7 @@ vec3 scene(vec2 p, float t) {
 
   float scale = 5.0;
   vec2 q = k * scale;
+  gUnit = scale;
   vec2 c; vec3 id;
   triCell(q, c, id);
   vec2 l = q - c;

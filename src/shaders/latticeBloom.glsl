@@ -4,6 +4,7 @@ vec3 scene(vec2 p, float t) {
   float scale = 7.0 + 1.2 * sin(t * 0.045 + uSeed);
   p = rot(t * 0.012 + uSeed) * p;
   vec2 q = p * scale;
+  gUnit = scale;
 
   vec2 c; vec3 id;
   triCell(q, c, id);
