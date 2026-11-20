@@ -1,4 +1,4 @@
-// Light Cycle — "Octgrams" by whisky_shusuky (2020), https://www.shadertoy.com/view/tlVGDt
+// Octagrams — by whisky_shusuky (2020), https://www.shadertoy.com/view/tlVGDt
 // Inspired by arabesque. Adapted for Hexaglow Sky: runs in ceiling space and is
 // coloured with the current WLED palette instead of the original blue.
 

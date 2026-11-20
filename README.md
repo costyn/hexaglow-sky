@@ -62,7 +62,7 @@ the outer outline of the image stays trapezoid-shaped.
 5. **Kaleido Lattice** – 6-fold kaleidoscope over a moving triangle lattice
 6. **Hexagram Mandala** – counter-rotating stars with orbiting hexagons
 7. **Hex Gate** – Lattice Bloom with a big hexagonal opening in the middle, like the real wall
-8. **Light Cycle** – "Octgrams" by whisky_shusuky ([Shadertoy](https://www.shadertoy.com/view/tlVGDt)), recoloured with the WLED palette
+8. **Octagrams** – by whisky_shusuky ([Shadertoy](https://www.shadertoy.com/view/tlVGDt)), recoloured with the WLED palette
 9. **Shader Art** – by kishimisu ([Shadertoy](https://www.shadertoy.com/view/mtyGWy)), with its own colours
 
 ## WLED palette sync
@@ -82,7 +82,7 @@ the segment's colors. Note WLED allows only a few WebSocket clients at once.
 - Color palettes from [WLED](https://github.com/wled/WLED) (`wled00/palettes.cpp`, EUPL-1.2),
   which includes palettes from [FastLED](https://github.com/FastLED/FastLED) (MIT) and
   [cpt-city](http://seaviewsensing.com/pub/cpt-city/).
-- *Light Cycle* is "Octgrams" by whisky_shusuky and *Shader Art* is by kishimisu, both from
+- *Octagrams* is by whisky_shusuky and *Shader Art* is by kishimisu, both from
   Shadertoy, where shaders are CC BY-NC-SA 3.0 unless their author says otherwise.
 - Signed-distance functions for triangles and hexagons after [Inigo Quilez](https://iquilezles.org/articles/distfunctions2d/).
 

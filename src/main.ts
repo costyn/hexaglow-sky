@@ -10,12 +10,13 @@ import triangleDrift from './shaders/triangleDrift.glsl?raw';
 import kaleidoLattice from './shaders/kaleidoLattice.glsl?raw';
 import hexagramMandala from './shaders/hexagramMandala.glsl?raw';
 import hexGate from './shaders/hexGate.glsl?raw';
-import lightCycle from './shaders/lightCycle.glsl?raw';
+import octagrams from './shaders/octagrams.glsl?raw';
 import shaderArt from './shaders/shaderArt.glsl?raw';
 import calibration from './shaders/calibration.glsl?raw';
 import { DEFAULT_QUAD, KeystoneEditor, warpMatrix, type Quad } from './keystone';
 
-const SCENES: { name: string; src: string; bloom?: number }[] = [
+// speed: per-scene time multiplier (default 1.5); bloom: per-scene bloom amount (default 1)
+const SCENES: { name: string; src: string; speed?: number; bloom?: number }[] = [
   { name: 'Lattice Bloom', src: latticeBloom },
   { name: 'Chevron Cascade', src: chevronCascade },
   { name: 'Sacred Tunnel', src: sacredTunnel },
@@ -24,8 +25,8 @@ const SCENES: { name: string; src: string; bloom?: number }[] = [
   { name: 'Hexagram Mandala', src: hexagramMandala },
   { name: 'Hex Gate', src: hexGate },
   // Shadertoy ports: their look relies on plain clamping, so no bloom
-  { name: 'Light Cycle', src: lightCycle, bloom: 0 },
-  { name: 'Shader Art', src: shaderArt, bloom: 0 },
+  { name: 'Octagrams', src: octagrams, speed: 0.5, bloom: 0 },
+  { name: 'Shader Art', src: shaderArt, speed: 1, bloom: 0 },
 ];
 
 // ---------- settings (persisted) ----------
@@ -167,11 +168,17 @@ let cur = Number(params.get('scene') ?? Math.floor(Math.random() * SCENES.length
 let next = -1;
 let curSeed = Math.random() * 10, nextSeed = 0;
 let sceneT = 0, mixT = 0;
-function goScene(i: number) {
+// Manual skips fade quickly; the slow fade is for the auto-cycle.
+const MANUAL_FADE = 0.8;
+let fadeSecs = 1;
+function goScene(i: number, fade = MANUAL_FADE) {
   i = ((i % SCENES.length) + SCENES.length) % SCENES.length;
-  if (next >= 0) { cur = next; curSeed = nextSeed; } // finish any running fade
+  if (next >= 0) { // interrupting a fade: keep whichever scene is mostly visible
+    if (mixT >= 0.5) { cur = next; curSeed = nextSeed; }
+    next = -1;
+  }
   if (i === cur) return;
-  next = i; nextSeed = Math.random() * 10; mixT = 0; sceneT = 0;
+  next = i; nextSeed = Math.random() * 10; mixT = 0; sceneT = 0; fadeSecs = fade;
   show(`scene  ${i + 1} · ${SCENES[i].name}`);
 }
 
@@ -253,7 +260,7 @@ function drawScene(i: number, seed: number, target: Target) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
   gl.viewport(0, 0, target.w, target.h);
   const prog = i < 0 ? calibProg : sceneProgs[i];
-  prog.use().f('uTime', time).f('uRes', target.w, target.h).f('uSeed', seed).tex('uPalette', 0, paletteTex)
+  prog.use().f('uTime', i < 0 ? time : time * (SCENES[i].speed ?? 1.5)).f('uRes', target.w, target.h).f('uSeed', seed).tex('uPalette', 0, paletteTex)
     .m3('uWarp', warpMatrix(settings.quad, W / H)).f('uZoom', settings.zoom)
     .f('uFlip', settings.flipX ? 1 : 0, settings.flipY ? 1 : 0);
   if (i < 0) prog.f('uAspect', W / H);
@@ -278,10 +285,10 @@ function frame(now: number) {
   if (settings.auto && next < 0 && sceneT > settings.sceneSecs) {
     let n: number;
     do n = Math.floor(Math.random() * SCENES.length); while (n === cur);
-    goScene(n);
+    goScene(n, settings.sceneFade);
   }
   if (next >= 0 && !calib) {
-    mixT += dt / settings.sceneFade;
+    mixT += dt / fadeSecs;
     if (mixT >= 1) { cur = next; curSeed = nextSeed; next = -1; mixT = 0; }
   }
   if (!calib) palClock += dt;
