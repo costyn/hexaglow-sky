@@ -65,8 +65,8 @@ the outer outline of the image stays trapezoid-shaped.
 8. **Octagrams** – by whisky_shusuky ([Shadertoy](https://www.shadertoy.com/view/tlVGDt)), recoloured with the WLED palette
 9. **Shader Art** – by kishimisu ([Shadertoy](https://www.shadertoy.com/view/mtyGWy)), with its own colours
 10. **Lattice Current** – comets of light race along the channels between the triangles, popping hexagons open at the vertices they pass
-11. **The Universe Within** – by Martijn Steinrucken aka BigWings, with its own colours
-12. **Voronoi Distances** – by Inigo Quilez ([Shadertoy](https://www.shadertoy.com/view/ldl3W8), MIT), with its own colours
+11. **The Universe Within** – by Martijn Steinrucken aka BigWings, recoloured with the WLED palette
+12. **Voronoi Distances** – by Inigo Quilez ([Shadertoy](https://www.shadertoy.com/view/ldl3W8), MIT), recoloured with the WLED palette
 
 ## WLED palette sync
 

@@ -3,7 +3,8 @@
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 //
 // Adapted for Hexaglow Sky: runs in ceiling space; no mouse parallax, no audio glow,
-// and no fade-out every 230 s (it would black out the ceiling). Keeps its own colours.
+// and no fade-out every 230 s (it would black out the ceiling). Each depth layer takes
+// its colour from the WLED palette, so the layers drift through it as they fly in.
 
 #define S(a, b, t) smoothstep(a, b, t)
 #define NUM_LAYERS 4.
@@ -81,16 +82,16 @@ vec3 scene(vec2 uv, float iTime) {
   mat2 rm = mat2(c, -s, s, c);
   vec2 st = uv * rm;
 
-  float m = 0.;
+  vec3 col = vec3(0.);
   for (float i = 0.; i < 1.; i += 1. / NUM_LAYERS) {
     float z = fract(t + i);
     float size = mix(15., 1., z);
     float fade = S(0., .6, z) * S(1., .8, z);
-    m += fade * NetLayer(st * size, i, iTime);
+    // colour per layer, shifting with depth; the layer's offset (i - z) is constant,
+    // so a layer keeps its colour while it flies in and only drifts slowly
+    vec3 layerCol = pal(z * 0.35 + i * 0.5 + t * 0.15 + uSeed) * 1.15;
+    col += layerCol * fade * NetLayer(st * size, i, iTime);
   }
-
-  vec3 baseCol = vec3(s, cos(t * .4), -sin(t * .24)) * .4 + .6;
-  vec3 col = baseCol * m;
   col *= 1. - dot(uv, uv);
   return min(max(col, 0.0), vec3(20.0));
 }
