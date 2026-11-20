@@ -101,6 +101,16 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+// ---------- HUD ----------
+const hud = document.getElementById('hud')!;
+const help = document.getElementById('help')!;
+let hudTimer = 0;
+function show(msg: string) {
+  hud.textContent = msg;
+  hud.classList.add('show');
+  clearTimeout(hudTimer);
+  hudTimer = window.setTimeout(() => { if (!keystone.active) hud.classList.remove('show'); }, 3500);
+}
 // ---------- palette state (crossfades on the CPU, like WLED's palette blending) ----------
 const palNow = new Float32Array(256 * 3);
 let palFrom = new Float32Array(256 * 3);
@@ -171,16 +181,6 @@ const wled = new WledSync(
 if (settings.wled) wled.connect(settings.wled);
 const wledActive = () => wled.status !== 'off';
 
-// ---------- HUD ----------
-const hud = document.getElementById('hud')!;
-const help = document.getElementById('help')!;
-let hudTimer = 0;
-function show(msg: string) {
-  hud.textContent = msg;
-  hud.classList.add('show');
-  clearTimeout(hudTimer);
-  hudTimer = window.setTimeout(() => { if (!keystone.active) hud.classList.remove('show'); }, 3500);
-}
 let idleTimer = 0;
 window.addEventListener('mousemove', () => {
   document.body.classList.remove('idle');
