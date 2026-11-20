@@ -9,16 +9,23 @@ import sacredTunnel from './shaders/sacredTunnel.glsl?raw';
 import triangleDrift from './shaders/triangleDrift.glsl?raw';
 import kaleidoLattice from './shaders/kaleidoLattice.glsl?raw';
 import hexagramMandala from './shaders/hexagramMandala.glsl?raw';
+import hexGate from './shaders/hexGate.glsl?raw';
+import lightCycle from './shaders/lightCycle.glsl?raw';
+import shaderArt from './shaders/shaderArt.glsl?raw';
 import calibration from './shaders/calibration.glsl?raw';
 import { DEFAULT_QUAD, KeystoneEditor, warpMatrix, type Quad } from './keystone';
 
-const SCENES = [
+const SCENES: { name: string; src: string; bloom?: number }[] = [
   { name: 'Lattice Bloom', src: latticeBloom },
   { name: 'Chevron Cascade', src: chevronCascade },
   { name: 'Sacred Tunnel', src: sacredTunnel },
   { name: 'Triangle Drift', src: triangleDrift },
   { name: 'Kaleido Lattice', src: kaleidoLattice },
   { name: 'Hexagram Mandala', src: hexagramMandala },
+  { name: 'Hex Gate', src: hexGate },
+  // Shadertoy ports: their look relies on plain clamping, so no bloom
+  { name: 'Light Cycle', src: lightCycle, bloom: 0 },
+  { name: 'Shader Art', src: shaderArt, bloom: 0 },
 ];
 
 // ---------- settings (persisted) ----------
@@ -290,7 +297,10 @@ function frame(now: number) {
   else drawScene(cur, curSeed, sceneA);
   if (next >= 0 && !calib) drawScene(next, nextSeed, sceneB);
 
-  if (settings.bloom) {
+  // per-scene bloom amount, crossfaded along with the scenes
+  const sceneBloom = (i: number) => (calib ? 1 : SCENES[i].bloom ?? 1);
+  const bloomAmt = settings.bloom ? 0.9 * (next >= 0 ? sceneBloom(cur) + (sceneBloom(next) - sceneBloom(cur)) * mix : sceneBloom(cur)) : 0;
+  if (bloomAmt > 0) {
     downMix.use().tex('uA', 0, sceneA.tex).tex('uB', 1, sceneB.tex).f('uMix', mix).f('uTexel', 1 / W, 1 / H);
     pass(downMix, b1, b1.w, b1.h);
     blur.use().tex('uSrc', 0, b1.tex).f('uDir', 1 / b1.w, 0); pass(blur, b1t, b1.w, b1.h);
@@ -303,7 +313,7 @@ function frame(now: number) {
   }
   composite.use()
     .tex('uA', 0, sceneA.tex).tex('uB', 1, sceneB.tex).tex('uBloom1', 2, b1.tex).tex('uBloom2', 3, b2.tex)
-    .f('uMix', mix).f('uBloom', settings.bloom ? 0.9 : 0).f('uBright', settings.bright).f('uMaster', master)
+    .f('uMix', mix).f('uBloom', bloomAmt).f('uBright', settings.bright).f('uMaster', master)
     .f('uEdge', 0.03);
   pass(composite, null, W, H);
 
