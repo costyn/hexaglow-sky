@@ -27,7 +27,7 @@ disk (double-click), which is what the releases contain.
 | Key | Action |
 |---|---|
 | Space / → / ← | next / previous scene |
-| 1–9 | pick scene |
+| 1–9, 0 | pick scene 1–10 (the rest via ←/→) |
 | A | auto-cycle scenes + palettes on/off |
 | P or ] / [ | next / previous WLED palette |
 | ↑ / ↓ | speed |
@@ -64,6 +64,9 @@ the outer outline of the image stays trapezoid-shaped.
 7. **Hex Gate** – Lattice Bloom with a big hexagonal opening in the middle, like the real wall
 8. **Octagrams** – by whisky_shusuky ([Shadertoy](https://www.shadertoy.com/view/tlVGDt)), recoloured with the WLED palette
 9. **Shader Art** – by kishimisu ([Shadertoy](https://www.shadertoy.com/view/mtyGWy)), with its own colours
+10. **Lattice Current** – comets of light race along the channels between the triangles, popping hexagons open at the vertices they pass
+11. **The Universe Within** – by Martijn Steinrucken aka BigWings, with its own colours
+12. **Voronoi Distances** – by Inigo Quilez ([Shadertoy](https://www.shadertoy.com/view/ldl3W8), MIT), with its own colours
 
 ## WLED palette sync
 
@@ -82,8 +85,9 @@ the segment's colors. Note WLED allows only a few WebSocket clients at once.
 - Color palettes from [WLED](https://github.com/wled/WLED) (`wled00/palettes.cpp`, EUPL-1.2),
   which includes palettes from [FastLED](https://github.com/FastLED/FastLED) (MIT) and
   [cpt-city](http://seaviewsensing.com/pub/cpt-city/).
-- *Octagrams* is by whisky_shusuky and *Shader Art* is by kishimisu, both from
-  Shadertoy, where shaders are CC BY-NC-SA 3.0 unless their author says otherwise.
+- *Octagrams* (whisky_shusuky), *Shader Art* (kishimisu) and *The Universe Within*
+  (Martijn Steinrucken) are from Shadertoy and are CC BY-NC-SA 3.0: non-commercial use only.
+  *Voronoi Distances* is by Inigo Quilez under the MIT license.
 - Signed-distance functions for triangles and hexagons after [Inigo Quilez](https://iquilezles.org/articles/distfunctions2d/).
 
 ## License

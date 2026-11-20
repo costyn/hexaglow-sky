@@ -12,6 +12,9 @@ import hexagramMandala from './shaders/hexagramMandala.glsl?raw';
 import hexGate from './shaders/hexGate.glsl?raw';
 import octagrams from './shaders/octagrams.glsl?raw';
 import shaderArt from './shaders/shaderArt.glsl?raw';
+import latticeCurrent from './shaders/latticeCurrent.glsl?raw';
+import universeWithin from './shaders/universeWithin.glsl?raw';
+import voronoiDistances from './shaders/voronoiDistances.glsl?raw';
 import calibration from './shaders/calibration.glsl?raw';
 import { DEFAULT_QUAD, KeystoneEditor, warpMatrix, type Quad } from './keystone';
 
@@ -27,6 +30,9 @@ const SCENES: { name: string; src: string; speed?: number; bloom?: number }[] = 
   // Shadertoy ports: their look relies on plain clamping, so no bloom
   { name: 'Octagrams', src: octagrams, speed: 0.5, bloom: 0 },
   { name: 'Shader Art', src: shaderArt, speed: 1, bloom: 0 },
+  { name: 'Lattice Current', src: latticeCurrent },
+  { name: 'The Universe Within', src: universeWithin, speed: 1, bloom: 0 },
+  { name: 'Voronoi Distances', src: voronoiDistances, speed: 1, bloom: 0 },
 ];
 
 // ---------- settings (persisted) ----------
@@ -229,7 +235,7 @@ window.addEventListener('keydown', (e) => {
   if (k === 'k') { help.classList.remove('show'); keystone.toggle(true); show(KEYSTONE_HELP); return; }
   if (k === ' ' || k === 'ArrowRight') goScene((next >= 0 ? next : cur) + 1);
   else if (k === 'ArrowLeft') goScene((next >= 0 ? next : cur) - 1);
-  else if (k >= '1' && k <= String(SCENES.length)) goScene(+k - 1);
+  else if (/^[0-9]$/.test(k)) { const n = k === '0' ? 10 : +k; if (n <= SCENES.length) goScene(n - 1); }
   else if (k === 'p' || k === ']') setPalette(getPalette(ALL_IDS[(palIdx + 1) % ALL_IDS.length])!, 2);
   else if (k === '[') setPalette(getPalette(ALL_IDS[(palIdx - 1 + ALL_IDS.length) % ALL_IDS.length])!, 2);
   else if (k === 'a') { settings.auto = !settings.auto; show(`auto-cycle ${settings.auto ? 'on' : 'off'}`); }
@@ -306,7 +312,11 @@ function frame(now: number) {
 
   // per-scene bloom amount, crossfaded along with the scenes
   const sceneBloom = (i: number) => (calib ? 1 : SCENES[i].bloom ?? 1);
-  const bloomAmt = settings.bloom ? 0.9 * (next >= 0 ? sceneBloom(cur) + (sceneBloom(next) - sceneBloom(cur)) * mix : sceneBloom(cur)) : 0;
+  // Scenes made for bloom look dim without it, so they get a 3x boost when bloom is off.
+  const sceneGain = (i: number) => (!settings.bloom && !calib && sceneBloom(i) > 0 ? 3 : 1);
+  const mixed = (f: (i: number) => number) => (next >= 0 ? f(cur) + (f(next) - f(cur)) * mix : f(cur));
+  const bloomAmt = settings.bloom ? 0.9 * mixed(sceneBloom) : 0;
+  const gain = mixed(sceneGain);
   if (bloomAmt > 0) {
     downMix.use().tex('uA', 0, sceneA.tex).tex('uB', 1, sceneB.tex).f('uMix', mix).f('uTexel', 1 / W, 1 / H);
     pass(downMix, b1, b1.w, b1.h);
@@ -320,7 +330,7 @@ function frame(now: number) {
   }
   composite.use()
     .tex('uA', 0, sceneA.tex).tex('uB', 1, sceneB.tex).tex('uBloom1', 2, b1.tex).tex('uBloom2', 3, b2.tex)
-    .f('uMix', mix).f('uBloom', bloomAmt).f('uBright', settings.bright).f('uMaster', master)
+    .f('uMix', mix).f('uBloom', bloomAmt).f('uBright', settings.bright * gain).f('uMaster', master)
     .f('uEdge', 0.03);
   pass(composite, null, W, H);
 
