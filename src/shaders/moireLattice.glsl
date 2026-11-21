@@ -47,13 +47,17 @@ vec3 scene(vec2 p, float t) {
 
   float rc = length(F.c) / scale;
   float h = hash12(F.id.xy * 1.31 + F.id.z * 17.3 + uSeed);
+  // shadow waves rolling across the front layer (deeper than Lattice Bloom's)
   float wave = 0.5 + 0.5 * sin(rc * 6.0 - t * 0.35);
-  float act = 0.35 + 0.65 * smoothstep(0.2, 0.9, wave);
+  float act = 0.1 + 0.9 * smoothstep(0.3, 0.85, wave);
   act *= 0.75 + 0.25 * sin(t * 0.6 + h * TAU);
 
   // back layer: dimmer, thinner, offset in the palette, seen mostly through the front's gaps
   float rb = length(B.c) / scale;
   vec3 bcol = pal(rb * 0.5 - t * 0.02 + 0.5) * 0.35;
+  // the back layer has its own, slower shadow waves, so the two interfere
+  float bwave = 0.5 + 0.5 * sin(rb * 5.0 + t * 0.22 + 1.7);
+  bcol *= 0.25 + 0.75 * smoothstep(0.2, 0.8, bwave);
   vec3 col = bcol * (stroke(dB, w * 0.8) + halo(dB, w));
   col *= 1.0 - 0.55 * fillAA(dF);
 

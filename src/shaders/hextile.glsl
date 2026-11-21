@@ -3,9 +3,9 @@
 //
 // The original's colour pattern gets denser forever (it multiplies by iTime), so after a while
 // the edges turn into fast aliasing noise. Here its clock runs back and forth between 0 and
-// HT_MAX instead, so the moiré builds up, gets busy, then winds back down.
+// HT_MAX instead: the small hexagons coalesce into big ones, then fall apart again.
 
-const float HT_MAX = 40.0; // how far into the original's timeline to go before turning back
+const float HT_MAX = 20.0; // how far into the original's timeline to go before turning back
 
 vec3 scene(vec2 p, float iTime) {
   float tt = HT_MAX * (1.0 - abs(1.0 - 2.0 * fract(iTime / (2.0 * HT_MAX))));

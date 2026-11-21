@@ -17,6 +17,7 @@ import universeWithin from './shaders/universeWithin.glsl?raw';
 import voronoiDistances from './shaders/voronoiDistances.glsl?raw';
 import moireLattice from './shaders/moireLattice.glsl?raw';
 import hextile from './shaders/hextile.glsl?raw';
+import ledWall from './shaders/ledWall.glsl?raw';
 import calibration from './shaders/calibration.glsl?raw';
 import { DEFAULT_QUAD, KeystoneEditor, warpMatrix, type Quad } from './keystone';
 
@@ -37,6 +38,7 @@ const SCENES: { name: string; src: string; speed?: number; bloom?: number }[] = 
   { name: 'Voronoi Distances', src: voronoiDistances, speed: 1, bloom: 0 },
   { name: 'Moiré Lattice', src: moireLattice },
   { name: 'Hextile', src: hextile, speed: 0.5, bloom: 0 },
+  { name: 'LED Wall', src: ledWall },
 ];
 
 // ---------- settings (persisted) ----------

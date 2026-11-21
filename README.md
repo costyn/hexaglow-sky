@@ -68,7 +68,8 @@ the outer outline of the image stays trapezoid-shaped.
 11. **The Universe Within** – by Martijn Steinrucken aka BigWings, recoloured with the WLED palette
 12. **Voronoi Distances** – by Inigo Quilez ([Shadertoy](https://www.shadertoy.com/view/ldl3W8), MIT), recoloured with the WLED palette
 13. **Moiré Lattice** – two lattices, one behind the other; their slight twist makes a giant hexagonal moiré, with hexagons blooming where they line up
-14. **Hextile** – from Shadertoy ([dtSXWV](https://www.shadertoy.com/view/dtSXWV)), slowed down, its moiré builds up and winds back down
+14. **Hextile** – from Shadertoy ([dtSXWV](https://www.shadertoy.com/view/dtSXWV)), slowed down and looping its first 20 seconds, where the small hexagons coalesce into big ones
+15. **LED Wall** – an approximate replica of the booth's Hexaglow wall, with WLED-style effects (ripple, spiral, plasma, twinkle, scanner) glowing through its holes
 
 ## WLED palette sync
 
