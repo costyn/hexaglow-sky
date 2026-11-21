@@ -67,6 +67,8 @@ the outer outline of the image stays trapezoid-shaped.
 10. **Lattice Current** – comets of light race along the channels between the triangles, popping hexagons open at the vertices they pass
 11. **The Universe Within** – by Martijn Steinrucken aka BigWings, recoloured with the WLED palette
 12. **Voronoi Distances** – by Inigo Quilez ([Shadertoy](https://www.shadertoy.com/view/ldl3W8), MIT), recoloured with the WLED palette
+13. **Moiré Lattice** – two lattices, one behind the other; their slight twist makes a giant hexagonal moiré, with hexagons blooming where they line up
+14. **Hextile** – from Shadertoy ([dtSXWV](https://www.shadertoy.com/view/dtSXWV)), slowed down, its moiré builds up and winds back down
 
 ## WLED palette sync
 
@@ -85,8 +87,8 @@ the segment's colors. Note WLED allows only a few WebSocket clients at once.
 - Color palettes from [WLED](https://github.com/wled/WLED) (`wled00/palettes.cpp`, EUPL-1.2),
   which includes palettes from [FastLED](https://github.com/FastLED/FastLED) (MIT) and
   [cpt-city](http://seaviewsensing.com/pub/cpt-city/).
-- *Octagrams* (whisky_shusuky), *Shader Art* (kishimisu) and *The Universe Within*
-  (Martijn Steinrucken) are from Shadertoy and are CC BY-NC-SA 3.0: non-commercial use only.
+- *Octagrams* (whisky_shusuky), *Shader Art* (kishimisu), *The Universe Within*
+  (Martijn Steinrucken) and *Hextile* are from Shadertoy and are CC BY-NC-SA 3.0: non-commercial use only.
   *Voronoi Distances* is by Inigo Quilez under the MIT license.
 - Signed-distance functions for triangles and hexagons after [Inigo Quilez](https://iquilezles.org/articles/distfunctions2d/).
 
