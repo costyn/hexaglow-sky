@@ -14,7 +14,7 @@ const float LW_EFFECTS = 5.0;
 
 // One effect value per hole: x = palette position, y = brightness
 vec2 lwEffect(int e, vec2 c, float h, float t) {
-  float r = length(c), a = atan(c.y, c.x);
+  float r = length(c), a = r > 1e-3 ? atan(c.y, c.x) : 0.0; // atan(0,0) is undefined
   if (e == 0) { // ripple: rings running out from the centre hole
     return vec2(r * 0.12 - t * 0.04, pow(0.5 + 0.5 * sin(r * 1.9 - t * 1.3), 2.0));
   }
@@ -26,7 +26,7 @@ vec2 lwEffect(int e, vec2 c, float h, float t) {
     return vec2(v * 0.12 + t * 0.015, 0.25 + 0.75 * smoothstep(-1.0, 2.0, v));
   }
   if (e == 3) { // twinkle: holes flash at random
-    float f = pow(max(0.0, sin(t * (0.6 + h * 1.2) + h * TAU)), 10.0);
+    float f = pow(max(0.0, sin(t * (0.3 + h * 0.5) + h * TAU)), 6.0);
     return vec2(h * 0.6 + t * 0.01, 0.06 + f);
   }
   // 4: scanner bar sweeping up and down, like a Larson scanner
@@ -63,8 +63,10 @@ vec3 scene(vec2 p, float t) {
   float k = floor(mt);
   int e0 = int(mod(k, LW_EFFECTS)), e1 = int(mod(k + 1.0, LW_EFFECTS));
   float fm = smoothstep(0.7, 1.0, fract(mt));
-  vec2 E = mix(lwEffect(e0, cell, h, t), lwEffect(e1, cell, h, t), fm);
-  vec3 light = pal(E.x) * E.y;
+  // crossfade the colours, not the palette positions: the two effects' positions can be
+  // many palette cycles apart, and blending them raced every hole through the palette
+  vec2 E0 = lwEffect(e0, cell, h, t), E1 = lwEffect(e1, cell, h, t);
+  vec3 light = mix(pal(E0.x) * E0.y, pal(E1.x) * E1.y, fm);
 
   // diffused look: brighter towards the middle of each hole
   float inner = smoothstep(0.0, 0.2, -dHole);
