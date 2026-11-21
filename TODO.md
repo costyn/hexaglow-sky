@@ -17,3 +17,12 @@
 
 ## WLED UDP sync
 - Original dream: sync timing and effects from WLED, not just the palette. Needs a UDP→WebSocket bridge.
+
+## Drive the real LED wall from the shaders
+- Render the scenes (especially LED Wall) and send the colours to the physical wall, so it can show
+  the same patterns as the digital twin instead of being limited to WLED's built-in effects.
+- Needs a map of every LED's position on the wall (WLED supports 2D LED maps), then sample the
+  shader at those points each frame.
+- Transport: WLED accepts real-time pixel data (DDP / E1.31 over UDP, which needs a small bridge
+  since browsers can't send UDP), or possibly per-LED colours over its WebSocket/JSON API at a
+  lower frame rate. Check what's fast enough for the wall's LED count.

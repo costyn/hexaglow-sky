@@ -68,10 +68,10 @@ vec3 scene(vec2 p, float t) {
   vec2 E0 = lwEffect(e0, cell, h, t), E1 = lwEffect(e1, cell, h, t);
   vec3 light = mix(pal(E0.x) * E0.y, pal(E1.x) * E1.y, fm);
 
-  // diffused look: brighter towards the middle of each hole
-  float inner = smoothstep(0.0, 0.2, -dHole);
-  vec3 col = light * (0.45 + 0.75 * inner) * fillAA(dHole);
-  // a little light catching the edges of the wall around the hole
-  col += light * 0.18 * exp(-max(dHole, 0.0) / 0.035) * (1.0 - fillAA(dHole));
+  // the LED strips sit on the back of the lattice bars, so each hole is brightest along
+  // its edges and falls off towards the middle (the big centre hole gets quite dark inside)
+  float depth = max(-dHole, 0.0);
+  float edgeLit = 0.22 + 1.0 * exp(-depth / 0.07) + 0.25 * exp(-depth / 0.25);
+  vec3 col = light * edgeLit * fillAA(dHole);
   return col;
 }
