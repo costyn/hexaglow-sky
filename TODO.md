@@ -26,3 +26,8 @@
 - Transport: WLED accepts real-time pixel data (DDP / E1.31 over UDP, which needs a small bridge
   since browsers can't send UDP), or possibly per-LED colours over its WebSocket/JSON API at a
   lower frame rate. Check what's fast enough for the wall's LED count.
+- Resolution: 7 strips × 49 LEDs (~35 mm pitch, ~7 LEDs per triangle along a strip). Plenty along
+  the strips, coarse across them, and each LED lights both the triangle above and the one below.
+  Sample the shader averaged over the area each LED lights, not at a single point, and prefer
+  effects with soft, large features across the strips (ripple, plasma, scanner, sweeps).
+  Option: a "wall-accurate" LED Wall mode that only shows what the real strip layout can show.
