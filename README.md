@@ -36,6 +36,7 @@ disk (double-click), which is what the releases contain.
 | K | keystone calibration (see below) |
 | X / Y | mirror horizontally / vertically (ceiling/rear projection) |
 | L | bloom glow on/off |
+| , / . | bloom −/+ 10% (0–200%) |
 | W | WLED IP for palette sync |
 | F | fullscreen · H help |
 

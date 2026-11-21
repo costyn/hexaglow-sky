@@ -43,7 +43,7 @@ const SCENES: { name: string; src: string; speed?: number; bloom?: number }[] = 
 
 // ---------- settings (persisted) ----------
 const DEFAULTS = {
-  speed: 1, bright: 1, bloom: true, flipX: false, flipY: false, auto: true,
+  speed: 1, bright: 1, bloom: true, bloomLevel: 1, flipX: false, flipY: false, auto: true,
   sceneSecs: 50, sceneFade: 7, paletteSecs: 90, paletteFade: 8, wled: '', renderScale: 1,
   quad: DEFAULT_QUAD.map((p) => [...p]) as Quad, zoom: 1,
 };
@@ -253,7 +253,13 @@ window.addEventListener('keydown', (e) => {
   else if (k === 'f') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
   else if (k === 'x') { settings.flipX = !settings.flipX; show(`mirror X ${settings.flipX ? 'on' : 'off'}`); }
   else if (k === 'y') { settings.flipY = !settings.flipY; show(`mirror Y ${settings.flipY ? 'on' : 'off'}`); }
-  else if (k === 'l') { settings.bloom = !settings.bloom; show(`bloom ${settings.bloom ? 'on' : 'off'}`); }
+  else if (k === 'l') { settings.bloom = !settings.bloom; show(`bloom ${settings.bloom ? `on ${Math.round(settings.bloomLevel * 100)}%` : 'off'}`); }
+  else if (k === ',' || k === '<' || k === '.' || k === '>') {
+    const up = k === '.' || k === '>';
+    settings.bloomLevel = Math.round(Math.min(2, Math.max(0, settings.bloomLevel + (up ? 0.1 : -0.1))) * 10) / 10;
+    settings.bloom = true;
+    show(`bloom ${Math.round(settings.bloomLevel * 100)}%`);
+  }
   else if (k === 'h' || k === '?') help.classList.toggle('show');
   else if (k === 'Escape') help.classList.remove('show');
   else if (k === 'w') {
@@ -318,10 +324,12 @@ function frame(now: number) {
 
   // per-scene bloom amount, crossfaded along with the scenes
   const sceneBloom = (i: number) => (calib ? 1 : SCENES[i].bloom ?? 1);
-  // Scenes made for bloom look dim without it, so they get a 3x boost when bloom is off.
-  const sceneGain = (i: number) => (!settings.bloom && !calib && sceneBloom(i) > 0 ? 3 : 1);
+  const bloomLevel = settings.bloom ? settings.bloomLevel : 0;
+  // Scenes made for bloom look dim without it, so they get up to a 3x boost as bloom goes
+  // from 100% down to off (no boost at 100% and above).
+  const sceneGain = (i: number) => (!calib && sceneBloom(i) > 0 ? 1 + 2 * (1 - Math.min(1, bloomLevel)) : 1);
   const mixed = (f: (i: number) => number) => (next >= 0 ? f(cur) + (f(next) - f(cur)) * mix : f(cur));
-  const bloomAmt = settings.bloom ? 0.9 * mixed(sceneBloom) : 0;
+  const bloomAmt = 0.9 * bloomLevel * mixed(sceneBloom);
   const gain = mixed(sceneGain);
   if (bloomAmt > 0) {
     downMix.use().tex('uA', 0, sceneA.tex).tex('uB', 1, sceneB.tex).f('uMix', mix).f('uTexel', 1 / W, 1 / H);
